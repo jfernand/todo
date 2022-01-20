@@ -18,7 +18,7 @@ import (
 
 var defStyle tcell.Style
 
-func todos_path() string {
+func todosPath() string {
 	usr, _ := user.Current()
 	dir := usr.HomeDir
 	return filepath.Join(dir, "/.todos.yaml")
@@ -37,18 +37,18 @@ func emitStr(s tcell.Screen, x, y int, style tcell.Style, str string) {
 		x += w
 	}
 }
-func sort_list(todos []map[string]interface{}) {
+func sortList(todos []map[string]interface{}) {
 	sort.Slice(todos, func(i, j int) bool {
 		return todos[i]["name"].(string) < todos[j]["name"].(string)
 	})
 }
 
-func sort_todo(todos []map[string]interface{}) [][]map[string]interface{}{
-	goal := []map[string]interface{}{}
-	important := []map[string]interface{}{}
-	todo := []map[string]interface{}{}
-	shopping := []map[string]interface{}{}
-	done := []map[string]interface{}{}
+func sortTodo(todos []map[string]interface{}) [][]map[string]interface{} {
+	var goal []map[string]interface{}
+	var important []map[string]interface{}
+	var todo []map[string]interface{}
+	var shopping []map[string]interface{}
+	var done []map[string]interface{}
 
 	for _, el := range todos {
 		name := el["name"].(string)
@@ -66,70 +66,70 @@ func sort_todo(todos []map[string]interface{}) [][]map[string]interface{}{
 		}
 	}
 
-	sort_list(goal)
-	sort_list(important)
-	sort_list(shopping)
-	sort_list(todo)
-	sort_list(done)
+	sortList(goal)
+	sortList(important)
+	sortList(shopping)
+	sortList(todo)
+	sortList(done)
 
-	all_todos := [][]map[string]interface{}{}
+	var allTodos [][]map[string]interface{}
 
-	all_todos = append(all_todos, goal)
-	all_todos = append(all_todos, important)
-	all_todos = append(all_todos, todo)
-	all_todos = append(all_todos, shopping)
-	all_todos = append(all_todos, done)
+	allTodos = append(allTodos, goal)
+	allTodos = append(allTodos, important)
+	allTodos = append(allTodos, todo)
+	allTodos = append(allTodos, shopping)
+	allTodos = append(allTodos, done)
 
-	return all_todos
+	return allTodos
 }
 
-func render_todos(s tcell.Screen, todos []map[string]interface{}) {
+func renderTodos(s tcell.Screen, todos []map[string]interface{}) {
 	green := tcell.StyleDefault.Foreground(tcell.ColorLawnGreen)
 	yellow := tcell.StyleDefault.Foreground(tcell.ColorYellow)
-	sea_green := tcell.StyleDefault.Foreground(tcell.ColorDarkSeaGreen)
+	seaGreen := tcell.StyleDefault.Foreground(tcell.ColorDarkSeaGreen)
 	purple := tcell.StyleDefault.Foreground(tcell.ColorPurple)
 	grey := tcell.StyleDefault.Foreground(tcell.ColorGrey)
 	orange := tcell.StyleDefault.Foreground(tcell.ColorOrange)
 	blue := tcell.StyleDefault.Foreground(tcell.ColorBlue)
 
-	emitStr(s, 0,0, green, "TODO")
+	emitStr(s, 0, 0, green, "TODO")
 
 	index := 1
 
-	all_todos := sort_todo(todos)
-	goal := all_todos[0]
-	important := all_todos[1]
-	todo := all_todos[2]
-	shopping := all_todos[3]
-	done := all_todos[4]
+	allTodos := sortTodo(todos)
+	goal := allTodos[0]
+	important := allTodos[1]
+	todo := allTodos[2]
+	shopping := allTodos[3]
+	done := allTodos[4]
 
 	for _, el := range goal {
 		name := el["name"].(string)
-		emitStr(s, 0, index, sea_green, "-- " + name + " --")
+		emitStr(s, 0, index, seaGreen, "-- "+name+" --")
 		index += 1
 	}
 
 	for _, el := range important {
 		name := el["name"].(string)
-		emitStr(s, 0, index, yellow, "[ ] " + name)
+		emitStr(s, 0, index, yellow, "[ ] "+name)
 		index += 1
 	}
 
 	for _, el := range todo {
 		name := el["name"].(string)
-		emitStr(s, 0, index, blue, "[ ] " + name)
+		emitStr(s, 0, index, blue, "[ ] "+name)
 		index += 1
 	}
 
 	for _, el := range shopping {
 		name := el["name"].(string)
-		emitStr(s, 0, index, purple, "[ ] " + name)
+		emitStr(s, 0, index, purple, "[ ] "+name)
 		index += 1
 	}
 
 	for _, el := range done {
 		name := el["name"].(string)
-		emitStr(s, 0, index, grey, "[x] " + name + " (-)")
+		emitStr(s, 0, index, grey, "[x] "+name+" (-)")
 		index += 1
 	}
 
@@ -138,21 +138,21 @@ func render_todos(s tcell.Screen, todos []map[string]interface{}) {
 	emitStr(s, 0, index, orange, "Add +")
 }
 
-func add_new_todo(s tcell.Screen, new_todo string) {
+func addNewTodo(s tcell.Screen, newTodo string) {
 	blue := tcell.StyleDefault.Foreground(tcell.ColorBlue)
-	emitStr(s, 0, 2, blue, "New Todo: " + new_todo)
+	emitStr(s, 0, 2, blue, "New Todo: "+newTodo)
 }
 
-func tick_todos(x int, y int, todos []map[string]interface{}) []map[string]interface{} {
+func tickTodos(x int, y int, todos []map[string]interface{}) []map[string]interface{} {
 
-	sorted_todos := sort_todo(todos)
-	goal := sorted_todos[0]
-	important := sorted_todos[1]
-	todo := sorted_todos[2]
-	shopping := sorted_todos[3]
-	checked := sorted_todos[4]
+	sortedTodos := sortTodo(todos)
+	goal := sortedTodos[0]
+	important := sortedTodos[1]
+	todo := sortedTodos[2]
+	shopping := sortedTodos[3]
+	checked := sortedTodos[4]
 
-	all_todos := []map[string]interface{}{}
+	var allTodos []map[string]interface{}
 
 	index := 1
 	for _, el := range goal {
@@ -160,7 +160,7 @@ func tick_todos(x int, y int, todos []map[string]interface{}) []map[string]inter
 			el["done"] = true
 		}
 		index += 1
-		all_todos = append(all_todos, el)
+		allTodos = append(allTodos, el)
 	}
 
 	for _, el := range important {
@@ -168,7 +168,7 @@ func tick_todos(x int, y int, todos []map[string]interface{}) []map[string]inter
 			el["done"] = true
 		}
 		index += 1
-		all_todos = append(all_todos, el)
+		allTodos = append(allTodos, el)
 	}
 
 	for _, el := range todo {
@@ -176,7 +176,7 @@ func tick_todos(x int, y int, todos []map[string]interface{}) []map[string]inter
 			el["done"] = true
 		}
 		index += 1
-		all_todos = append(all_todos, el)
+		allTodos = append(allTodos, el)
 	}
 
 	for _, el := range shopping {
@@ -184,7 +184,7 @@ func tick_todos(x int, y int, todos []map[string]interface{}) []map[string]inter
 			el["done"] = true
 		}
 		index += 1
-		all_todos = append(all_todos, el)
+		allTodos = append(allTodos, el)
 	}
 
 	for _, el := range checked {
@@ -192,36 +192,35 @@ func tick_todos(x int, y int, todos []map[string]interface{}) []map[string]inter
 			name := el["name"].(string)
 			if (len(name) + 6) != x {
 				el["done"] = false
-				all_todos = append(all_todos, el)
+				allTodos = append(allTodos, el)
 				index += 1
 			}
 		} else {
-			all_todos = append(all_todos, el)
+			allTodos = append(allTodos, el)
 			index += 1
 		}
 	}
 
-	save_todos(all_todos)
-	return all_todos
+	saveTodos(allTodos)
+	return allTodos
 }
 
-func save_todos(todos []map[string]interface{}) {
+func saveTodos(todos []map[string]interface{}) {
 	b := make(map[string]interface{})
 	b["todos"] = todos
 	d, err := yaml.Marshal(b)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
-	f, err := os.Create(todos_path())
+	f, err := os.Create(todosPath())
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
 	f.Write(d)
 }
 
-
-func get_todos() ([]map[string]interface{}, error) {
-	yamlFile, err := ioutil.ReadFile(todos_path())
+func getTodos() ([]map[string]interface{}, error) {
+	yamlFile, err := ioutil.ReadFile(todosPath())
 
 	type AllToDos struct {
 		ToDos []map[string]interface{}
@@ -257,18 +256,18 @@ func main() {
 	s.EnablePaste()
 	s.Clear()
 
-	ecnt := 0
-	add_new := false
-	new_todo := ""
+	escapeKeypressCount := 0
+	addNew := false
+	newTodo := ""
 
-	todos, err := get_todos()
+	todos, err := getTodos()
 	if err != nil {
 		s.Fini()
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(0)
 	}
 
-	render_todos(s, todos)
+	renderTodos(s, todos)
 	s.Show()
 
 	defer s.Fini()
@@ -280,92 +279,90 @@ func main() {
 		}
 	}()
 	go func() {
-	for {
-		ev := <-events
-		switch ev := ev.(type) {
-		case *tcell.EventKey:
-			if ev.Key() == tcell.KeyEscape {
-				ecnt++
-				if ecnt > 1 {
-					s.Fini()
-					os.Exit(0)
+		for {
+			ev := <-events
+			switch ev := ev.(type) {
+			case *tcell.EventKey:
+				if ev.Key() == tcell.KeyEscape {
+					escapeKeypressCount++
+					if escapeKeypressCount > 1 {
+						s.Fini()
+						os.Exit(0)
+					}
+				} else if ev.Key() == tcell.KeyEnter {
+					if addNew == true {
+						todos, _ := getTodos()
+						newValue := make(map[string]interface{})
+						newValue["name"] = newTodo
+						newValue["done"] = false
+						addNew = false
+						newTodo = ""
+						todos = append(todos, newValue)
+						saveTodos(todos)
+						allTodos, _ := getTodos()
+						s.Clear()
+						renderTodos(s, allTodos)
+						s.Show()
+					}
+				} else if ev.Key() == tcell.KeyRune {
+					if addNew {
+						keyValue := strings.Replace(strings.Replace(ev.Name(), "Rune[", "", 1), "]",
+							"", 1)
+						newTodo += keyValue
+						addNewTodo(s, newTodo)
+						addNew = true
+						s.Show()
+					}
+				} else if ev.Key() == tcell.KeyBackspace2 || ev.Key() == tcell.KeyBackspace {
+					if len(newTodo) > 0 {
+						newTodo = strings.TrimSuffix(newTodo, newTodo[len(newTodo)-1:])
+						s.Clear()
+						addNewTodo(s, newTodo)
+						s.Show()
+					} else {
+						addNew = false
+						allTodos, _ := getTodos()
+						s.Clear()
+						renderTodos(s, allTodos)
+						s.Show()
+					}
 				}
-			} else if ev.Key() == tcell.KeyEnter {
-				if add_new == true {
-					todos, _ := get_todos()
-					new_value := make(map[string]interface{})
-					new_value["name"] = new_todo
-					new_value["done"] = false
-					add_new = false
-					new_todo = ""
-					todos = append(todos, new_value)
-					save_todos(todos)
-					atodos, _ := get_todos()
-					s.Clear()
-					render_todos(s, atodos)
-					s.Show()
-				}
-			} else if ev.Key() == tcell.KeyRune {
-				if add_new {
-					key_value := strings.Replace(strings.Replace(ev.Name(), "Rune[", "", 1), "]",
-						"", 1)
-					new_todo += key_value
-					add_new_todo(s, new_todo)
-					add_new = true
-					s.Show()
-				}
-			} else if (ev.Key() == tcell.KeyBackspace2 || ev.Key() == tcell.KeyBackspace) {
-				if len(new_todo) > 0 {
-					new_todo = strings.TrimSuffix(new_todo, new_todo[len(new_todo)-1:])
-					s.Clear()
-					add_new_todo(s, new_todo)
-					s.Show()
-				} else {
-					add_new = false
-					atodos, _ := get_todos()
-					s.Clear()
-					render_todos(s, atodos)
-					s.Show()
+			case *tcell.EventMouse:
+				x, y := ev.Position()
+				switch ev.Buttons() {
+				case tcell.Button1, tcell.Button2, tcell.Button3:
+					allTodos, _ := getTodos()
+					l := len(allTodos)
+					if y < (l + 2) {
+						s.Clear()
+						tickTodos(x, y, allTodos)
+						todos, _ := getTodos()
+						renderTodos(s, todos)
+						s.Show()
+					} else if y == l+2 {
+						s.Clear()
+						addNewTodo(s, newTodo)
+						addNew = true
+						s.Show()
+					}
 				}
 			}
-		case *tcell.EventMouse:
-			x, y := ev.Position()
-			switch ev.Buttons() {
-			case tcell.Button1, tcell.Button2, tcell.Button3:
-				atodos, _ := get_todos()
-				l := len(atodos)
-				if y < (l + 2) {
-					s.Clear()
-					tick_todos(x, y, atodos)
-					todos, _ := get_todos()
-					render_todos(s, todos)
-					s.Show()
-				} else if y == l+2 {
-					s.Clear()
-					add_new_todo(s, new_todo)
-					add_new = true
-					s.Show()
-				}
-			}
-		}
 
-	}
+		}
 	}()
 
 	t := time.NewTicker(time.Second)
 	for {
 		select {
 		case <-t.C:
-			if !add_new {
+			if !addNew {
 				s.Clear()
-				atodos, _ := get_todos()
-				render_todos(s, atodos)
+				allTodos, _ := getTodos()
+				renderTodos(s, allTodos)
 				s.Sync()
 				s.Show()
 			}
 		}
 
 	}
-
-
 }
