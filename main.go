@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/gdamore/tcell/v2"
-	"github.com/gdamore/tcell/v2/encoding"
 	"github.com/jfernand/todo/renderer"
 	"github.com/jfernand/todo/todo"
 	"os"
@@ -13,17 +12,9 @@ import (
 
 var defStyle tcell.Style
 
-type context = struct {
-	escape      int
-	addingNew   bool
-	highlighted int
-}
-
-var ctx context
-
-func addNewTodo(s tcell.Screen, newTodo string) {
+func addNewTodo(s renderer.Renderer, newTodo string) {
 	blue := tcell.StyleDefault.Foreground(tcell.ColorBlue)
-	renderer.EmitStr(s, 0, 2, blue, "New todo: "+newTodo)
+	s.EmitStr(0, 2, blue, "New todo: "+newTodo)
 }
 
 func tickTodos(x int, y int, todos todo.List) todo.List {
@@ -89,17 +80,7 @@ func tickTodos(x int, y int, todos todo.List) todo.List {
 
 func main() {
 
-	s, e := tcell.NewScreen()
-	encoding.Register()
-
-	if e != nil {
-		fmt.Fprintf(os.Stderr, "%v\n", e)
-		os.Exit(1)
-	}
-	if e := s.Init(); e != nil {
-		fmt.Fprintf(os.Stderr, "%v\n", e)
-		os.Exit(1)
-	}
+	s := renderer.Init()
 
 	defStyle = tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorReset)
 
@@ -119,7 +100,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	renderer.RenderTodos(s, todos)
+	s.RenderTodos(todos)
 	s.Show()
 
 	defer s.Fini()
@@ -146,7 +127,7 @@ func main() {
 						s.Clear()
 						tickTodos(x, y, allTodos)
 						todos, _ := todo.LoadTodos()
-						renderer.RenderTodos(s, todos)
+						s.RenderTodos(todos)
 						s.Show()
 					} else if y == l+2 {
 						s.Clear()
@@ -166,7 +147,7 @@ func main() {
 			if !addNew {
 				s.Clear()
 				allTodos, _ := todo.LoadTodos()
-				renderer.RenderTodos(s, allTodos)
+				s.RenderTodos(allTodos)
 				s.Sync()
 				s.Show()
 			}
@@ -174,7 +155,7 @@ func main() {
 	}
 }
 
-func handleKey(ev *tcell.EventKey, escapeKeypressCount int, s tcell.Screen, addNew bool, newTodo string) (bool, string) {
+func handleKey(ev *tcell.EventKey, escapeKeypressCount int, s renderer.Renderer, addNew bool, newTodo string) (bool, string) {
 	switch ev.Key() {
 	case tcell.KeyEscape:
 	case tcell.KeyHome:
@@ -198,7 +179,7 @@ func handleKey(ev *tcell.EventKey, escapeKeypressCount int, s tcell.Screen, addN
 				todos.SaveTodos()
 				allTodos, _ := todo.LoadTodos()
 				s.Clear()
-				renderer.RenderTodos(s, allTodos)
+				s.RenderTodos(allTodos)
 				s.Show()
 			}
 		}
@@ -225,7 +206,7 @@ func handleKey(ev *tcell.EventKey, escapeKeypressCount int, s tcell.Screen, addN
 				addNew = false
 				allTodos, _ := todo.LoadTodos()
 				s.Clear()
-				renderer.RenderTodos(s, allTodos)
+				s.RenderTodos(allTodos)
 				s.Show()
 			}
 		}
