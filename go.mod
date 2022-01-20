@@ -1,4 +1,4 @@
-module todo
+module github.com/jfernand/todo
 
 go 1.17
 
